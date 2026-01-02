@@ -15,7 +15,7 @@ import aiRoutes from "./routes/AI.js";
 import { verifyAuth } from "./middleware/authMiddleware.js";
 import { checkMaintenanceMode } from "./middleware/maintenanceMiddleware.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
-import { getUserInfo } from "./controllers/userController.js";
+import { getProfile } from "./controllers/profileController.js";
 
 dotenv.config();
 
@@ -41,7 +41,7 @@ app.use("/api/ai", verifyAuth, checkMaintenanceMode, aiRoutes);
 
 import { verifyTokenOnly } from "./middleware/verifyTokenOnly.js";
 
-app.get("/api/userinfo", verifyTokenOnly, getUserInfo);
+app.get("/api/userinfo", verifyTokenOnly, getProfile);
 
 
 

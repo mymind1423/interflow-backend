@@ -29,7 +29,7 @@ export async function getAdminStats() {
 export async function getAllStudentsAdmin() {
     return withConnection(async (conn) => {
         const res = await conn.execute(
-            `SELECT U.ID, U.DISPLAY_NAME, U.EMAIL, U.STATUS, U.PHOTO_URL, S.CV_URL, S.DIPLOMA_URL, S.DOMAINE, S.GRADE FROM USERS U LEFT JOIN STUDENTS S ON U.ID = S.ID WHERE U.USER_TYPE = 'student' ORDER BY U.CREATED_AT DESC`,
+            `SELECT U.ID, U.DISPLAY_NAME, U.EMAIL, U.STATUS, U.PHOTO_URL, S.CV_URL, S.DIPLOMA_URL, S.DOMAINE, S.GRADE, S.DATE_OF_BIRTH FROM USERS U LEFT JOIN STUDENTS S ON U.ID = S.ID WHERE U.USER_TYPE = 'student' ORDER BY U.CREATED_AT DESC`,
             {},
             { outFormat: oracledb.OUT_FORMAT_OBJECT }
         );
@@ -42,7 +42,8 @@ export async function getAllStudentsAdmin() {
             cvUrl: r.CV_URL,
             diplomaUrl: r.DIPLOMA_URL,
             domaine: r.DOMAINE,
-            grade: r.GRADE
+            grade: r.GRADE,
+            dateOfBirth: r.DATE_OF_BIRTH
         }));
     });
 }
@@ -69,7 +70,7 @@ export async function getAllCompaniesAdmin() {
 export async function getAllApplicationsAdmin() {
     return withConnection(async (conn) => {
         const res = await conn.execute(`
-      SELECT A.ID, J.TITLE, S.FULLNAME, U.PHOTO_URL, A.STATUS, A.CREATED_AT, C.NAME, C.ID as COMPANY_ID, I.DATE_TIME, S.CV_URL, S.DIPLOMA_URL, UC.PHOTO_URL as COMPANY_LOGO, U.EMAIL, S.DOMAINE, S.GRADE
+      SELECT A.ID, J.TITLE, S.FULLNAME, U.PHOTO_URL, A.STATUS, A.CREATED_AT, C.NAME, C.ID as COMPANY_ID, I.DATE_TIME, S.CV_URL, S.DIPLOMA_URL, UC.PHOTO_URL as COMPANY_LOGO, U.EMAIL, S.DOMAINE, S.GRADE, S.DATE_OF_BIRTH
       FROM APPLICATIONS A 
       JOIN JOBS J ON A.JOB_ID = J.ID 
       JOIN STUDENTS S ON A.STUDENT_ID = S.ID 
@@ -95,7 +96,8 @@ export async function getAllApplicationsAdmin() {
             companyLogo: r.COMPANY_LOGO,
             applicantEmail: r.EMAIL,
             applicantDomaine: r.DOMAINE,
-            applicantGrade: r.GRADE
+            applicantGrade: r.GRADE,
+            applicantDateOfBirth: r.DATE_OF_BIRTH
         }));
     });
 }
@@ -103,11 +105,12 @@ export async function getAllApplicationsAdmin() {
 export async function getAllInterviewsAdmin() {
     return withConnection(async (conn) => {
         const res = await conn.execute(`
-      SELECT I.ID, I.TITLE, C.NAME, S.FULLNAME, I.DATE_TIME, I.STATUS, I.MEET_LINK, U.PHOTO_URL, I.COMPANY_ID, I.ROOM
+      SELECT I.ID, I.TITLE, C.NAME, S.FULLNAME, I.DATE_TIME, I.STATUS, I.MEET_LINK, U.PHOTO_URL, I.COMPANY_ID, I.ROOM, E.RATING, E.COMMENTS, S.DATE_OF_BIRTH
       FROM INTERVIEWS I
       JOIN COMPANIES C ON I.COMPANY_ID = C.ID
       JOIN STUDENTS S ON I.STUDENT_ID = S.ID
       JOIN USERS U ON S.ID = U.ID
+      LEFT JOIN EVALUATIONS E ON I.APPLICATION_ID = E.APPLICATION_ID
       ORDER BY I.DATE_TIME DESC
     `, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
 
@@ -121,7 +124,10 @@ export async function getAllInterviewsAdmin() {
             meetLink: r.MEET_LINK,
             studentPhoto: r.PHOTO_URL,
             companyId: r.COMPANY_ID,
-            room: r.ROOM
+            room: r.ROOM,
+            score: r.RATING, // Map for frontend
+            remarks: r.COMMENTS, // Map for frontend
+            studentDateOfBirth: r.DATE_OF_BIRTH
         }));
     });
 }

@@ -9,8 +9,19 @@ import { NotFoundError } from "../utils/errors.js";
 export async function getProfile(req, res, next) {
   try {
     const profile = await getProfileById(req.user.uid);
-    if (!profile) throw new NotFoundError("User not found");
-    res.json(profile);
+    if (profile) {
+      res.json(profile);
+    } else {
+      // Fallback: If no student/company profile, return basic User info (maybe Admin or just Auth user)
+      // This covers the logic that was in userController.js
+      res.json({
+        uid: req.user.uid,
+        email: req.user.email,
+        displayName: req.user.displayName || "User",
+        userType: "unknown",
+        status: "pending"
+      });
+    }
   } catch (err) {
     next(err);
   }

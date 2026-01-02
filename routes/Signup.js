@@ -14,6 +14,7 @@ const studentRules = [
   body("faculty").optional().isLength({ min: 2 }).withMessage("Faculty is required"),
   body("domaine").optional().isLength({ min: 2 }).withMessage("Domain is required"),
   body("grade").optional().isLength({ min: 2 }).withMessage("Grade is required"),
+  body("dateOfBirth").optional().isISO8601().toDate().withMessage("Invalid date of birth"),
   body("cvUrl")
     .optional({ checkFalsy: true, nullable: true })
     .isURL({ require_tld: false })

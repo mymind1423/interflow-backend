@@ -9,8 +9,32 @@ import {
     toggleSavedJob,
     getStudentSavedJobs,
     getStudentInterviews,
-    deleteApplication
+    deleteApplication,
+    studentCheckIn, // Import new service
+    getInterviewFeedback // Import new service
 } from "../services/dbService.js";
+
+// ... [existing imports] ...
+
+// [existing functions] ...
+
+// NEW: Check In Controller
+export async function checkIn(req, res, next) {
+    try {
+        const { id } = req.params;
+        await studentCheckIn(id, req.user.uid);
+        res.json({ success: true });
+    } catch (err) { next(err); }
+}
+
+// NEW: Get Feedback Controller
+export async function getFeedback(req, res, next) {
+    try {
+        const { id } = req.params;
+        const feedback = await getInterviewFeedback(id, req.user.uid);
+        res.json(feedback);
+    } catch (err) { next(err); }
+}
 import { generateJobForCompany } from "../utils/jobGenerator.js";
 
 export async function getStats(req, res, next) {

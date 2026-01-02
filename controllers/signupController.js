@@ -18,6 +18,7 @@ export async function signupStudent(req, res, next) {
       grade,
       cvUrl,
       diplomaUrl,
+      dateOfBirth
     } = req.body;
 
     // SECURITY FIX: Use the UID from the validated token, not the body
@@ -40,6 +41,7 @@ export async function signupStudent(req, res, next) {
       grade,
       cvUrl,
       diplomaUrl,
+      dateOfBirth
     });
 
     res.json({ success: true });

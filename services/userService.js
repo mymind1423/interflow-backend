@@ -62,15 +62,25 @@ export async function isPhoneRegistered(phone) {
 }
 
 export async function createStudentProfile(payload) {
-    const { id, email, fullname, phone, address, faculty, domaine, grade, cvUrl, diplomaUrl } = payload;
+    const { id, email, fullname, phone, address, faculty, domaine, grade, cvUrl, diplomaUrl, dateOfBirth } = payload;
     return withConnection(async (conn) => {
+        try {
+            await conn.execute(
+                `INSERT INTO USERS (ID, USER_TYPE, EMAIL, DISPLAY_NAME, STATUS) VALUES (:id, 'student', :email, :fullname, 'approved')`,
+                { id, email, fullname }
+            );
+        } catch (e) {
+            // Ignore if user already exists (might be created by trigger or separate auth flow)
+            if (e.code !== 'ORA-00001') throw e;
+            // Update the user type just in case it was created without it
+            await conn.execute(
+                `UPDATE USERS SET USER_TYPE = 'student', STATUS = 'approved', DISPLAY_NAME = :fullname WHERE ID = :id`,
+                { id, fullname }
+            );
+        }
         await conn.execute(
-            `INSERT INTO USERS (ID, USER_TYPE, EMAIL, DISPLAY_NAME, STATUS) VALUES (:id, 'student', :email, :fullname, 'approved')`,
-            { id, email, fullname }
-        );
-        await conn.execute(
-            `INSERT INTO STUDENTS (ID, FULLNAME, PHONE, ADDRESS, FACULTY, DOMAINE, GRADE, CV_URL, DIPLOMA_URL)
-       VALUES (:id, :fullname, :phone, :address, :faculty, :domaine, :grade, :cvUrl, :diplomaUrl)`,
+            `INSERT INTO STUDENTS (ID, FULLNAME, PHONE, ADDRESS, FACULTY, DOMAINE, GRADE, CV_URL, DIPLOMA_URL, DATE_OF_BIRTH, TOKENS_REMAINING, MAX_TOKENS)
+       VALUES (:id, :fullname, :phone, :address, :faculty, :domaine, :grade, :cvUrl, :diplomaUrl, :dateOfBirth, 5, 5)`,
             {
                 id: id || null,
                 fullname: fullname || null,
@@ -80,7 +90,8 @@ export async function createStudentProfile(payload) {
                 domaine: domaine || null,
                 grade: grade || null,
                 cvUrl: cvUrl || null,
-                diplomaUrl: diplomaUrl || null
+                diplomaUrl: diplomaUrl || null,
+                dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null
             }
         );
         await conn.commit();
@@ -93,10 +104,18 @@ export async function createStudentProfile(payload) {
 export async function createCompanyProfile(payload) {
     const { id, email, name, address, domaine, logoUrl } = payload;
     return withConnection(async (conn) => {
-        await conn.execute(
-            `INSERT INTO USERS (ID, USER_TYPE, EMAIL, DISPLAY_NAME, PHOTO_URL, STATUS) VALUES (:id, 'company', :email, :name, :logoUrl, 'pending')`,
-            { id, email, name, logoUrl }
-        );
+        try {
+            await conn.execute(
+                `INSERT INTO USERS (ID, USER_TYPE, EMAIL, DISPLAY_NAME, PHOTO_URL, STATUS) VALUES (:id, 'company', :email, :name, :logoUrl, 'pending')`,
+                { id, email, name, logoUrl }
+            );
+        } catch (e) {
+            if (e.code !== 'ORA-00001') throw e;
+            await conn.execute(
+                `UPDATE USERS SET USER_TYPE = 'company', STATUS = 'pending', DISPLAY_NAME = :name WHERE ID = :id`,
+                { id, name }
+            );
+        }
         await conn.execute(
             `INSERT INTO COMPANIES (ID, NAME, ADDRESS, DOMAINE) VALUES (:id, :name, :address, :domaine)`,
             { id: id || null, name: name || null, address: address || null, domaine: domaine || null }
@@ -139,6 +158,7 @@ export async function getProfileById(id) {
                 cvUrl: s.CV_URL,
                 diplomaUrl: s.DIPLOMA_URL,
                 faculty: s.FACULTY,
+                dateOfBirth: s.DATE_OF_BIRTH,
                 tokensRemaining: remaining,
                 maxTokens: max
             };
@@ -150,7 +170,7 @@ export async function getProfileById(id) {
             );
             const c = res.rows[0];
             const usageRes = await conn.execute(
-                `SELECT COUNT(*) as CNT FROM INTERVIEWS WHERE COMPANY_ID = :id AND STATUS IN ('ACCEPTED', 'COMPLETED')`,
+                `SELECT COUNT(*) as CNT FROM APPLICATIONS A JOIN JOBS J ON A.JOB_ID = J.ID WHERE J.COMPANY_ID = :id`,
                 { id },
                 { outFormat: oracledb.OUT_FORMAT_OBJECT }
             );
@@ -183,7 +203,28 @@ export async function updateUserProfile(id, payload) {
             if (payload.diplomaUrl !== undefined) await replaceFile(currentProfile.diplomaUrl, payload.diplomaUrl);
         }
 
-        // 1. Dynamic Update for USERS
+        // 1. Automatic Synchronization of Display Name <-> Entity Name
+        if (user.userType === 'student') {
+            // If displayName is updated but fullname isn't, sync fullname
+            if (payload.displayName && !payload.fullname) {
+                payload.fullname = payload.displayName;
+            }
+            // If fullname is updated but displayName isn't, sync displayName
+            if (payload.fullname && !payload.displayName) {
+                payload.displayName = payload.fullname;
+            }
+        } else if (user.userType === 'company') {
+            // If displayName is updated but name isn't, sync name
+            if (payload.displayName && !payload.name) {
+                payload.name = payload.displayName;
+            }
+            // If name is updated but displayName isn't, sync displayName
+            if (payload.name && !payload.displayName) {
+                payload.displayName = payload.name;
+            }
+        }
+
+        // 2. Dynamic Update for USERS
         const userUpdates = [];
         const userParams = { id };
 
@@ -198,30 +239,41 @@ export async function updateUserProfile(id, payload) {
             userParams.photo = newPhoto;
         }
 
-        userUpdates.push('UPDATED_AT = SYSTIMESTAMP');
-
-        if (userUpdates.length > 1) {
+        if (userUpdates.length > 0) {
+            // Always update timestamp if we touch the user record
+            userUpdates.push('UPDATED_AT = SYSTIMESTAMP');
             await conn.execute(`UPDATE USERS SET ${userUpdates.join(', ')} WHERE ID = :id`, userParams);
         }
 
-        // 2. Dynamic Update for Sub-tables (STUDENTS / COMPANIES)
+        // 3. Dynamic Update for Sub-tables (STUDENTS / COMPANIES)
         if (user.userType === 'student') {
             const fields = [];
             const params = { id };
             const map = {
                 fullname: 'FULLNAME', phone: 'PHONE', address: 'ADDRESS',
-                domaine: 'DOMAINE', grade: 'GRADE', cvUrl: 'CV_URL', diplomaUrl: 'DIPLOMA_URL', faculty: 'FACULTY'
+                domaine: 'DOMAINE', grade: 'GRADE', cvUrl: 'CV_URL', diplomaUrl: 'DIPLOMA_URL', faculty: 'FACULTY',
+                dateOfBirth: 'DATE_OF_BIRTH'
             };
 
             for (const [key, col] of Object.entries(map)) {
                 if (payload[key] !== undefined) {
                     fields.push(`${col} = :${key}`);
-                    params[key] = payload[key];
+                    if (key === 'dateOfBirth' && payload[key]) {
+                        params[key] = new Date(payload[key]);
+                    } else {
+                        params[key] = payload[key];
+                    }
                 }
             }
 
             if (fields.length > 0) {
                 await conn.execute(`UPDATE STUDENTS SET ${fields.join(', ')} WHERE ID = :id`, params);
+
+                // Explicitly update USERS.DISPLAY_NAME if FULLNAME was updated
+                // This ensures redundancy but guarantees the sync happens effectively
+                if (payload.fullname) {
+                    await conn.execute(`UPDATE USERS SET DISPLAY_NAME = :fullname WHERE ID = :id`, { fullname: payload.fullname, id });
+                }
             }
         } else if (user.userType === 'company') {
             const fields = [];
@@ -248,9 +300,19 @@ export async function updateUserProfile(id, payload) {
 export async function deleteUser(id) {
     return withConnection(async (conn) => {
         const user = await getUserById(id);
-        if (user.photoUrl) await deleteFileFromUrl(user.photoUrl);
-        // Delete from Firebase
-        try { await firebaseAdmin.auth().deleteUser(id); } catch (e) { }
+
+        if (user) {
+            if (user.photoUrl) await deleteFileFromUrl(user.photoUrl);
+
+            // Disconnect user (revoke tokens) & Delete from Firebase
+            try {
+                await firebaseAdmin.auth().revokeRefreshTokens(id);
+                await firebaseAdmin.auth().deleteUser(id);
+            } catch (e) {
+                console.warn(`Firebase cleanup failed for ${id}:`, e.message);
+            }
+        }
+
         // Delete from DB
         await conn.execute(`DELETE FROM USERS WHERE ID = :id`, { id });
         await conn.commit();

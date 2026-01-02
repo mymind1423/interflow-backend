@@ -85,13 +85,19 @@ export async function getInterviews(req, res, next) {
 
 export async function saveEvaluation(req, res, next) {
     try {
-        const { studentId, rating, comment } = req.body;
-        const result = await saveCompanyEvaluation(req.user.uid, studentId, rating, comment);
+        const { studentId, rating, comment, score, remarks } = req.body;
+        // Support both naming conventions
+        const finalRating = rating || score;
+        const finalComment = comment || remarks;
+
+        const result = await saveCompanyEvaluation(req.user.uid, studentId, finalRating, finalComment);
         res.json(result);
     } catch (err) {
         next(err);
     }
 }
+
+// ...
 
 export async function getEvaluation(req, res, next) {
     try {
@@ -129,16 +135,16 @@ export async function updateInterviewState(req, res, next) {
 export async function notifyInterviewStudent(req, res, next) {
     try {
         const { id } = req.params;
-        const { type } = req.body; // 'CALL' or 'DELAY'
+        const { type } = req.body; // 'CALL'/'ENTER_ROOM' or 'DELAY'/'DELAYED_NEXT'
 
         const interview = await getInterviewById(id);
         if (!interview) return res.status(404).json({ error: "Interview not found" });
 
         let title, message;
-        if (type === 'CALL') {
+        if (type === 'CALL' || type === 'ENTER_ROOM') {
             title = "C'est à votre tour !";
             message = `L'entreprise est prête pour votre entretien "${interview.title}". Veuillez rejoindre la salle/lien immédiatement.`;
-        } else if (type === 'DELAY') {
+        } else if (type === 'DELAY' || type === 'DELAYED_NEXT') {
             title = "Retard signalé";
             message = `Le recruteur a un léger retard pour "${interview.title}". Merci de patienter 5-10 minutes.`;
         }
@@ -163,8 +169,8 @@ export async function getStudentList(req, res, next) {
 export async function inviteStudent(req, res, next) {
     try {
         const { studentId, jobId } = req.body;
-        const { inviteStudent } = await import("../services/dbService.js");
-        const result = await inviteStudent(req.user.uid, studentId, jobId);
+        const { inviteStudentV2 } = await import("../services/dbService.js");
+        const result = await inviteStudentV2(req.user.uid, studentId, jobId);
         res.json(result);
     } catch (err) {
         next(err);

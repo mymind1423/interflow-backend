@@ -36,15 +36,17 @@ const buildStorage = (folder) => {
   });
 };
 
+const allowedMixed = [...allowedDocs, ...allowedImages];
+
 export const uploadCv = multer({
   storage: buildStorage("cv"),
-  fileFilter: fileFilter(allowedDocs),
+  fileFilter: fileFilter(allowedMixed),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 export const uploadDiploma = multer({
   storage: buildStorage("diploma"),
-  fileFilter: fileFilter(allowedDocs),
+  fileFilter: fileFilter(allowedMixed),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
