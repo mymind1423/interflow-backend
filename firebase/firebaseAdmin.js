@@ -4,9 +4,10 @@ import fs from "fs";
 let adminInstance;
 
 try {
-  const serviceAccountPath = new URL("./serviceAccountKey.json", import.meta.url);
-  if (fs.existsSync(serviceAccountPath)) {
-    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
+  let serviceAccount;
+
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
     if (!admin.apps.length) {
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
@@ -14,7 +15,18 @@ try {
     }
     adminInstance = admin;
   } else {
-    throw new Error("Service account file not found");
+    const serviceAccountPath = new URL("./serviceAccountKey.json", import.meta.url);
+    if (fs.existsSync(serviceAccountPath)) {
+      serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
+      if (!admin.apps.length) {
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount)
+        });
+      }
+      adminInstance = admin;
+    } else {
+      throw new Error("Service account file not found");
+    }
   }
 } catch (error) {
   console.warn("Firebase Admin Init Failed (Mocking enabled):", error.message);

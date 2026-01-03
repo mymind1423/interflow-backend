@@ -9,13 +9,19 @@ const SERVICE_ACCOUNT_PATH =
   process.env.FIREBASE_SERVICE_ACCOUNT_PATH ||
   new URL("../firebase/serviceAccountKey.json", import.meta.url);
 
-const raw = fs.readFileSync(
-  SERVICE_ACCOUNT_PATH instanceof URL
-    ? SERVICE_ACCOUNT_PATH
-    : path.resolve(SERVICE_ACCOUNT_PATH),
-  "utf8"
-);
-const serviceAccount = JSON.parse(raw);
+let serviceAccount;
+
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+} else {
+  const raw = fs.readFileSync(
+    SERVICE_ACCOUNT_PATH instanceof URL
+      ? SERVICE_ACCOUNT_PATH
+      : path.resolve(SERVICE_ACCOUNT_PATH),
+    "utf8"
+  );
+  serviceAccount = JSON.parse(raw);
+}
 
 if (!admin.apps.length) {
   admin.initializeApp({

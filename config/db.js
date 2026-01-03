@@ -4,6 +4,8 @@ import path from 'path';
 
 dotenv.config();
 
+// Oracle Thick Mode initialization removed for Vercel compatibility (Thin Mode is default)
+/*
 try {
   let configDir = process.env.TNS_ADMIN;
 
@@ -24,6 +26,7 @@ try {
     console.error("Oracle Client init error:", err);
   }
 }
+*/
 
 const {
   ORACLE_USER,
