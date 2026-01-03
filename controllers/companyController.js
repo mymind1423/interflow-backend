@@ -9,8 +9,8 @@ import {
     saveCompanyEvaluation,
     getCompanyEvaluation,
     updateInterviewStatusService,
-    notifyUser,
-    getInterviewById
+    getInterviewById,
+    createNotification
 } from "../services/dbService.js";
 
 export async function getJobs(req, res, next) {
@@ -149,7 +149,7 @@ export async function notifyInterviewStudent(req, res, next) {
             message = `Le recruteur a un léger retard pour "${interview.title}". Merci de patienter 5-10 minutes.`;
         }
 
-        await notifyUser(interview.studentId, title, message);
+        await createNotification(interview.studentId, 'info', title, message, id);
         res.json({ success: true, message: "Notification sent" });
     } catch (err) {
         next(err);

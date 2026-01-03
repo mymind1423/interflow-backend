@@ -1,4 +1,4 @@
-import { buildFileUrl } from "../utils/fileUrl.js";
+import { uploadToBucket } from "../services/ociService.js";
 import { ValidationError } from "../utils/errors.js";
 
 function ensureFile(req) {
@@ -7,37 +7,55 @@ function ensureFile(req) {
   }
 }
 
-export function uploadCvFile(req, res, next) {
+import path from "path";
+
+// ... ensureFile ...
+
+function generateFilename(req) {
+  const ext = path.extname(req.file.originalname) || "";
+  const uid = req.uid || "anonymous";
+  return `${uid}-${Date.now()}${ext}`;
+}
+
+export async function uploadCvFile(req, res, next) {
   try {
     ensureFile(req);
-    res.json({ url: buildFileUrl("cv", req.file.filename) });
+    const filename = generateFilename(req);
+    const url = await uploadToBucket(req.file.buffer, filename, "cv");
+    res.json({ url });
   } catch (err) {
     next(err);
   }
 }
 
-export function uploadDiplomaFile(req, res, next) {
+export async function uploadDiplomaFile(req, res, next) {
   try {
     ensureFile(req);
-    res.json({ url: buildFileUrl("diploma", req.file.filename) });
+    const filename = generateFilename(req);
+    const url = await uploadToBucket(req.file.buffer, filename, "diploma");
+    res.json({ url });
   } catch (err) {
     next(err);
   }
 }
 
-export function uploadLogoFile(req, res, next) {
+export async function uploadLogoFile(req, res, next) {
   try {
     ensureFile(req);
-    res.json({ url: buildFileUrl("logo", req.file.filename) });
+    const filename = generateFilename(req);
+    const url = await uploadToBucket(req.file.buffer, filename, "logo");
+    res.json({ url });
   } catch (err) {
     next(err);
   }
 }
 
-export function uploadAvatarFile(req, res, next) {
+export async function uploadAvatarFile(req, res, next) {
   try {
     ensureFile(req);
-    res.json({ url: buildFileUrl("avatars", req.file.filename) });
+    const filename = generateFilename(req);
+    const url = await uploadToBucket(req.file.buffer, filename, "avatars");
+    res.json({ url });
   } catch (err) {
     next(err);
   }

@@ -232,30 +232,7 @@ export async function getCompanyContact(id) {
     });
 }
 
-export async function getUserNotifications(userId) {
-    return withConnection(async (conn) => {
-        const res = await conn.execute(
-            `SELECT ID, TYPE, TITLE, MESSAGE, IS_READ, CREATED_AT FROM NOTIFICATIONS WHERE USER_ID = :userId ORDER BY CREATED_AT DESC`,
-            { userId },
-            { outFormat: oracledb.OUT_FORMAT_OBJECT }
-        );
-        return res.rows.map(r => ({ id: r.ID, type: r.TYPE, title: r.TITLE, message: r.MESSAGE, isRead: r.IS_READ === 1, createdAt: r.CREATED_AT }));
-    });
-}
 
-export async function markNotificationRead(id) {
-    return withConnection(async (conn) => {
-        await conn.execute(`UPDATE NOTIFICATIONS SET IS_READ = 1 WHERE ID = :id`, { id });
-        await conn.commit();
-    });
-}
-
-export async function markAllNotificationsRead(userId) {
-    return withConnection(async (conn) => {
-        await conn.execute(`UPDATE NOTIFICATIONS SET IS_READ = 1 WHERE USER_ID = :userId`, { userId });
-        await conn.commit();
-    });
-}
 
 export async function getStudentCandidaturesAdmin(studentId) {
     return withConnection(async (conn) => {

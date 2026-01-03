@@ -1,5 +1,6 @@
 import oracledb from "oracledb";
-import { withConnection, normalizeUser, addSystemLog, notifyAdmins } from "./coreDb.js";
+import { withConnection, normalizeUser, addSystemLog } from "./coreDb.js";
+import { notifyAdmins } from "./dbService.js";
 import { replaceFile, deleteFileFromUrl } from "../utils/fileUtils.js";
 import { admin as firebaseAdmin } from "../firebase/firebaseAdmin.js";
 
@@ -96,7 +97,7 @@ export async function createStudentProfile(payload) {
         );
         await conn.commit();
         await addSystemLog('SYSTEM', 'NEW_STUDENT', { id, email, fullname });
-        await notifyAdmins('Nouvelle Inscription', `${fullname} s'est inscrit en tant qu'étudiant.`);
+        await notifyAdmins('Nouvelle Inscription', `${fullname} s'est inscrit en tant qu'étudiant.`, 'student_signup', id);
         return { id };
     });
 }
@@ -122,7 +123,7 @@ export async function createCompanyProfile(payload) {
         );
         await conn.commit();
         await addSystemLog('SYSTEM', 'NEW_COMPANY', { id, email, name });
-        await notifyAdmins('Demande de Validation', `L'entreprise ${name} souhaite rejoindre la plateforme.`);
+        await notifyAdmins('Demande de Validation', `L'entreprise ${name} souhaite rejoindre la plateforme.`, 'company_signup', id);
         return { id };
     });
 }

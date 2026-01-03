@@ -1,0 +1,6 @@
+userid=admin/"Mouad@[sane]#19"@dboracle_high
+directory=data_pump_dir
+credential=CLE_IMPORT
+dumpfile=https://objectstorage.me-jeddah-1.oraclecloud.com/n/ax9efe9xa6au/b/bucket-backup/o/MON_EXPORT.DMP
+remap_schema=FRONT:ADMIN
+

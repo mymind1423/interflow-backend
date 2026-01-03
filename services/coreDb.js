@@ -68,22 +68,4 @@ export async function addSystemLog(adminId, action, details) {
     });
 }
 
-export async function notifyUser(userId, title, message) {
-    return withConnection(async (conn) => {
-        await conn.execute(
-            `INSERT INTO NOTIFICATIONS (USER_ID, TYPE, TITLE, MESSAGE) VALUES (:userId, 'info', :title, :message)`,
-            { userId, title, message }
-        );
-        await conn.commit();
-    });
-}
 
-export async function notifyAdmins(title, message) {
-    return withConnection(async (conn) => {
-        const admins = await conn.execute(`SELECT ID FROM USERS WHERE USER_TYPE = 'admin'`);
-        for (const r of admins.rows) {
-            await conn.execute(`INSERT INTO NOTIFICATIONS (USER_ID, TYPE, TITLE, MESSAGE) VALUES (:userId, 'info', :title, :message)`, { userId: r[0], title, message });
-        }
-        await conn.commit();
-    });
-}

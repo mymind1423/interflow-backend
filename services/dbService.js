@@ -4,3 +4,4 @@ export * from "./jobService.js";
 export * from "./adminService.js";
 export * from "./tokenService.js";
 export * from "./invitationService.js";
+export * from "./notificationService.js";

@@ -1,5 +1,6 @@
 import oracledb from "oracledb";
-import { withConnection, addSystemLog, notifyUser } from "./coreDb.js";
+import { withConnection, addSystemLog } from "./coreDb.js";
+import { createNotification } from "./dbService.js";
 import { logTokenTransaction } from "./tokenService.js";
 import { NOTIFICATION_TEMPLATES } from "../utils/notificationTemplates.js";
 import { randomUUID } from "crypto";
@@ -16,6 +17,12 @@ export async function createJob(job) {
             { ...job, id }
         );
         await conn.commit();
+        await conn.commit();
+
+        // Notify All Students about New Job (Simplified for now, ideally targeted)
+        // await createNotification('ALL_STUDENTS', 'job', "Nouvelle Offre", `Une nouvelle offre "${job.title}" a été publiée.`); 
+        // We need a way to batch notify. For now, skipping to avoid performance hit on createJob.
+
         return { id };
     });
 }
@@ -191,7 +198,7 @@ export async function applyToJob(userId, jobId, coverLetter) {
         );
         if (coUserRes.rows.length > 0) {
             const coUserId = coUserRes.rows[0].ID;
-            await notifyUser(coUserId, NOTIFICATION_TEMPLATES.NEW_APPLICATION.title, NOTIFICATION_TEMPLATES.NEW_APPLICATION.message);
+            await createNotification(coUserId, 'application', NOTIFICATION_TEMPLATES.NEW_APPLICATION.title, NOTIFICATION_TEMPLATES.NEW_APPLICATION.message, id);
         }
 
         return { status: 'APPLIED', tokensRemaining: tokensRemaining - 1 };
@@ -215,7 +222,7 @@ async function closeCompanyOffers(conn, companyId) {
         await conn.execute(`UPDATE APPLICATIONS SET STATUS = 'REJECTED_QUOTA' WHERE ID = :pid`, { pid });
         await logTokenTransaction(psid, -1, "Application Cancelled (Quota Reached)", conn);
         await addSystemLog(psid, 'SYSTEM_CANCEL', { companyId, reason: 'Quota Reached' });
-        await notifyUser(psid, NOTIFICATION_TEMPLATES.QUOTA_REACHED.title, NOTIFICATION_TEMPLATES.QUOTA_REACHED.message);
+        await createNotification(psid, 'error', NOTIFICATION_TEMPLATES.QUOTA_REACHED.title, NOTIFICATION_TEMPLATES.QUOTA_REACHED.message, pid);
     }
 }
 
@@ -283,7 +290,7 @@ export async function updateApplicationStatus(id, companyId, status, interviewDa
             }
 
             const notif = NOTIFICATION_TEMPLATES.INTERVIEW_ACCEPTED(slot.startTime, slot.roomName);
-            await notifyUser(studentId, notif.title, notif.message);
+            await createNotification(studentId, 'interview', notif.title, notif.message, interviewId);
 
         } else if (status === 'REJECTED' || status === 'CANCELLED') {
             await conn.execute(`UPDATE STUDENTS SET TOKENS_ENGAGED = TOKENS_ENGAGED - 1 WHERE ID = :studentId`, { studentId });
@@ -756,7 +763,7 @@ export async function studentCheckIn(interviewId, studentId) {
         // Notify Company
         const coUserRes = await conn.execute(`SELECT ID FROM USERS WHERE ID = :companyId`, { companyId }, { outFormat: oracledb.OUT_FORMAT_OBJECT });
         if (coUserRes.rows.length > 0) {
-            await notifyUser(coUserRes.rows[0].ID, "Candidat présent", `Le candidat pour ${title} est prêt (Check-in effectué).`);
+            await createNotification(coUserRes.rows[0].ID, 'info', "Candidat présent", `Le candidat pour ${title} est prêt (Check-in effectué).`, interviewId);
         }
 
         await conn.commit();

@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import oracledb from "oracledb";
-import { withConnection, notifyUser } from "./coreDb.js";
+import { withConnection } from "./coreDb.js";
+import { createNotification } from "./dbService.js";
 
 export async function inviteStudentV2(companyId, studentId, jobId) {
     return withConnection(async (conn) => {
@@ -36,7 +37,7 @@ export async function inviteStudentV2(companyId, studentId, jobId) {
         );
 
         // 4. Notify Student
-        await notifyUser(studentId, "Nouvelle Invitation", `L'entreprise vous invite à postuler pour "${job.TITLE}".`);
+        await createNotification(studentId, 'invitation', "Nouvelle Invitation", `L'entreprise vous invite à postuler pour "${job.TITLE}".`, id);
 
         await conn.commit();
         return { success: true };
@@ -118,7 +119,7 @@ export async function acceptInvitationV2(invitationId, studentId) {
         await conn.execute(`UPDATE INVITATIONS SET STATUS = 'ACCEPTED', UPDATED_AT = SYSTIMESTAMP WHERE ID = :invitationId`, { invitationId });
 
         // 5. Notify Company
-        await notifyUser(inv.COMPANY_ID, "Invitation Acceptée", "Le candidat a accepté votre invitation. L'entretien est planifié.");
+        await createNotification(inv.COMPANY_ID, 'info', "Invitation Acceptée", "Le candidat a accepté votre invitation. L'entretien est planifié.", interviewId);
 
         await conn.commit();
         return { success: true };

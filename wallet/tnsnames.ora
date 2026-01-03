@@ -1,0 +1,12 @@
+dboracle_high = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.me-jeddah-1.oraclecloud.com))(connect_data=(service_name=gafc4c7456f330a_dboracle_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+dboracle_medium = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.me-jeddah-1.oraclecloud.com))(connect_data=(service_name=gafc4c7456f330a_dboracle_medium.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+dboracle_low = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.me-jeddah-1.oraclecloud.com))(connect_data=(service_name=gafc4c7456f330a_dboracle_low.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+dboracle_tp = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.me-jeddah-1.oraclecloud.com))(connect_data=(service_name=gafc4c7456f330a_dboracle_tp.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+dboracle_tpurgent = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.me-jeddah-1.oraclecloud.com))(connect_data=(service_name=gafc4c7456f330a_dboracle_tpurgent.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+
+

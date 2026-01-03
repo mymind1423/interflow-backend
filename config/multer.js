@@ -23,41 +23,32 @@ const fileFilter = (allowed) => (req, file, cb) => {
   cb(null, true);
 };
 
-const buildStorage = (folder) => {
-  const dest = path.join(UPLOAD_ROOT, folder);
-  ensureDir(dest);
-
-  return multer.diskStorage({
-    destination: dest,
-    filename: (req, file, cb) => {
-      const ext = path.extname(file.originalname) || "";
-      cb(null, `${req.uid || "anonymous"}-${Date.now()}${ext}`);
-    },
-  });
+const buildStorage = () => {
+  return multer.memoryStorage();
 };
 
 const allowedMixed = [...allowedDocs, ...allowedImages];
 
 export const uploadCv = multer({
-  storage: buildStorage("cv"),
+  storage: buildStorage(),
   fileFilter: fileFilter(allowedMixed),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 export const uploadDiploma = multer({
-  storage: buildStorage("diploma"),
+  storage: buildStorage(),
   fileFilter: fileFilter(allowedMixed),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 export const uploadLogo = multer({
-  storage: buildStorage("logo"),
+  storage: buildStorage(),
   fileFilter: fileFilter(allowedImages),
   limits: { fileSize: 2 * 1024 * 1024 },
 });
 
 export const uploadAvatar = multer({
-  storage: buildStorage("avatars"),
+  storage: buildStorage(),
   fileFilter: fileFilter(allowedImages),
   limits: { fileSize: 2 * 1024 * 1024 },
 });

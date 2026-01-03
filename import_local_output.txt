@@ -1,0 +1,38 @@
+
+Import: Release 21.0.0.0.0 - Production on Sat Jan 3 16:55:11 2026
+Version 21.3.0.0.0
+
+Copyright (c) 1982, 2021, Oracle and/or its affiliates.  All rights reserved.
+
+Connected to: Oracle AI Database 26ai Enterprise Edition Release 23.26.0.1.0 - for Oracle Cloud and Engineered Systems
+Master table "ADMIN"."SYS_IMPORT_FULL_01" successfully loaded/unloaded
+Starting "ADMIN"."SYS_IMPORT_FULL_01":  admin/********@dboracle_high parfile=import.par 
+Processing object type SCHEMA_EXPORT/USER
+ORA-31684: Object type USER:"ADMIN" already exists
+
+Processing object type SCHEMA_EXPORT/SYSTEM_GRANT
+Processing object type SCHEMA_EXPORT/ROLE_GRANT
+Processing object type SCHEMA_EXPORT/DEFAULT_ROLE
+Processing object type SCHEMA_EXPORT/TABLE/TABLE
+Processing object type SCHEMA_EXPORT/TABLE/TABLE_DATA
+. . imported "ADMIN"."SYSTEM_LOGS"                        15.2 KB      49 rows
+. . imported "ADMIN"."STUDENTS"                           12.6 KB       4 rows
+. . imported "ADMIN"."INTERVIEWS"                          9.9 KB       5 rows
+. . imported "ADMIN"."JOBS"                                9.7 KB       2 rows
+. . imported "ADMIN"."TOKEN_HISTORY"                       9.3 KB      24 rows
+. . imported "ADMIN"."USERS"                               9.5 KB       7 rows
+. . imported "ADMIN"."EVALUATIONS"                         8.6 KB       2 rows
+. . imported "ADMIN"."INVITATIONS"                         8.5 KB       2 rows
+. . imported "ADMIN"."NOTIFICATIONS"                       8.3 KB       1 rows
+. . imported "ADMIN"."APPLICATIONS"                        7.8 KB       5 rows
+. . imported "ADMIN"."COMPANIES"                           7.4 KB       2 rows
+. . imported "ADMIN"."SAVED_JOBS"                          6.2 KB       4 rows
+. . imported "ADMIN"."SYSTEM_SETTINGS"                     6.1 KB       3 rows
+. . imported "ADMIN"."ROOMS"                               5.5 KB       4 rows
+Processing object type SCHEMA_EXPORT/TABLE/IDENTITY_COLUMN
+Processing object type SCHEMA_EXPORT/TABLE/CONSTRAINT/CONSTRAINT
+Processing object type SCHEMA_EXPORT/TABLE/INDEX/STATISTICS/INDEX_STATISTICS
+Processing object type SCHEMA_EXPORT/TABLE/CONSTRAINT/REF_CONSTRAINT
+Processing object type SCHEMA_EXPORT/TABLE/STATISTICS/TABLE_STATISTICS
+Job "ADMIN"."SYS_IMPORT_FULL_01" completed with 1 error(s) at Sat Jan 3 13:55:53 2026 elapsed 0 00:00:29
+
