@@ -8,7 +8,17 @@ dotenv.config();
 try {
   let configDir = process.env.TNS_ADMIN;
 
-  // If no env var, or it's a relative path, resolve it relative to project root
+  // On Vercel/Linux, if TNS_ADMIN is set to a Windows path (e.g. from local .env), it breaks.
+  // We detect this: if on Linux (separator is /) but path has Windows-style backslashes or drive letter.
+  const isWindowsPath = configDir && (configDir.includes('\\') || /^[a-zA-Z]:/.test(configDir));
+  const isLinux = path.sep === '/';
+
+  if (isLinux && isWindowsPath) {
+    console.warn(`Ignoring Windows-style TNS_ADMIN path on Linux: ${configDir}`);
+    configDir = null; // Force fallback to local wallet
+  }
+
+  // If no env var, or it's a relative path (or we forced it null), resolve it relative to project root
   if (!configDir) {
     configDir = path.join(process.cwd(), 'wallet');
   } else if (!path.isAbsolute(configDir)) {
