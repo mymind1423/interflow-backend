@@ -1,4 +1,0 @@
-Students: 1
-Jobs: 1
-Rooms: 4
-TOKENS_REMAINING column exists.

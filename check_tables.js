@@ -1,8 +1,9 @@
-import { getConnection } from "./config/db.js";
+import { getConnection, initializePool, closePool } from "./config/db.js";
 
 async function run() {
     let conn;
     try {
+        await initializePool();
         conn = await getConnection();
         console.log("Connected to DB");
 
@@ -25,6 +26,7 @@ async function run() {
         console.error("Check failed:", err);
     } finally {
         if (conn) await conn.close();
+        await closePool();
     }
 }
 

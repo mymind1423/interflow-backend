@@ -4,8 +4,7 @@ import path from 'path';
 
 dotenv.config();
 
-// Oracle Thick Mode initialization removed for Vercel compatibility (Thin Mode is default)
-/*
+// TNS_ADMIN Setup for Thin Mode (Required for Wallet-based connections)
 try {
   let configDir = process.env.TNS_ADMIN;
 
@@ -16,17 +15,12 @@ try {
     configDir = path.join(process.cwd(), configDir);
   }
 
-  // Only init if directory exists to avoid crashes
-  oracledb.initOracleClient({ configDir });
-  console.log(`Oracle Client Initialized. Wallet: ${configDir}`);
+  // Ensure TNS_ADMIN is set so oracledb can find tnsnames.ora / cwallet.sso
+  process.env.TNS_ADMIN = configDir;
+  console.log(`Oracle Wallet Configured: ${configDir}`);
 } catch (err) {
-  if (err.message.includes("NJS-009")) {
-    // already initialized, ignore
-  } else {
-    console.error("Oracle Client init error:", err);
-  }
+  console.warn("Oracle Client config warning:", err);
 }
-*/
 
 const {
   ORACLE_USER,
@@ -48,11 +42,12 @@ export async function initializePool() {
       user: ORACLE_USER,
       password: ORACLE_PASSWORD,
       connectString: ORACLE_CONNECT_STRING,
-      poolMin: 2,
-      poolMax: 10,
-      poolIncrement: 2,
+      poolMin: 1, // Reduced to 1 to avoid startup storm
+      poolMax: 25, // Increased to handle more concurrency
+      poolIncrement: 1,
+      queueTimeout: 120000, // Wait up to 2 mins for a connection
     });
-    console.log("Oracle Connection Pool created successfully.");
+    console.log("Oracle Connection Pool created successfully (Max: 25).");
   } catch (err) {
     console.error("Error creating connection pool", err);
     throw err;
@@ -75,7 +70,15 @@ export async function closePool() {
 export async function getConnection() {
   try {
     // When a default pool exists, getConnection() fetches from it automatically
-    return await oracledb.getConnection();
+    const conn = await oracledb.getConnection();
+
+    // Optional: Log pool stats (only enabled during debugging)
+    const pool = oracledb.getPool();
+    if (pool) {
+      // console.log(`Pool Status: ${pool.connectionsInUse} in use / ${pool.connectionsOpen} open`);
+    }
+
+    return conn;
   } catch (err) {
     console.error("Oracle connection failed (POOL issue likely)", err);
     throw err;
