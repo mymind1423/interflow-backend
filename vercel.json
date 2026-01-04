@@ -1,0 +1,20 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "index.js",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "wallet/**"
+                ]
+            }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/index.js"
+        }
+    ]
+}
