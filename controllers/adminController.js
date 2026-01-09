@@ -107,6 +107,13 @@ export async function getCompanies(req, res, next) {
   } catch (err) { next(err); }
 }
 
+export async function getJobs(req, res, next) {
+  try {
+    const data = await getAllJobsAdmin();
+    res.json(data);
+  } catch (err) { next(err); }
+}
+
 export async function deleteEntity(req, res, next) {
   try {
     const { id } = req.body;

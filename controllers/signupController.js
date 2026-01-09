@@ -52,7 +52,7 @@ export async function signupStudent(req, res, next) {
 
 export async function signupCompany(req, res, next) {
   try {
-    const { email, name, address, domaine, logoUrl, photoUrl } = req.body;
+    const { email, name, address, domaine, logoUrl, photoUrl, phone, website, description } = req.body;
     const id = req.user.uid;
 
     const existingUser = await getUserByEmail(email);
@@ -64,6 +64,9 @@ export async function signupCompany(req, res, next) {
       name,
       address,
       domaine,
+      phone,
+      website,
+      description,
       logoUrl: logoUrl || photoUrl,
     });
 

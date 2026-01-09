@@ -19,7 +19,8 @@ import {
   updateSetting,
   updateProfile,
   search,
-  getLiveManagerData
+  getLiveManagerData,
+  getJobs // Import new controller
 } from "../controllers/adminController.js";
 import { verifyAuth } from "../middleware/authMiddleware.js";
 import { requireAdmin } from "../middleware/requireAdmin.js";
@@ -44,6 +45,7 @@ router.get("/companies", getCompanies);
 router.post("/users/delete", idRule, validateRequest, deleteEntity);
 router.get("/applications", getApplications);
 router.get("/interviews", getInterviews);
+router.get("/jobs", getJobs);
 
 router.get("/companies/:id/jobs", listCompanyJobs);
 router.get("/students/:id/applications", listStudentApplications);

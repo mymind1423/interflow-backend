@@ -249,9 +249,9 @@ async function runSeed() {
                     }
 
                     const dayStr = CONFIG.INTERVIEW_DAYS[sched.dateIdx];
-                    // Create Date object for 8:00 AM + slotIdx * 20min
+                    // Create Date object for 8:00 AM (local) -> 05:00 UTC to fix +3h offset display
                     // Note: 'dayStr' is YYYY-MM-DD.
-                    const interviewDate = new Date(`${dayStr}T08:00:00`);
+                    const interviewDate = new Date(`${dayStr}T05:00:00`);
                     interviewDate.setMinutes(interviewDate.getMinutes() + (sched.slotIdx * CONFIG.SLOT_DURATION_MIN));
 
                     const interviewId = `TEST_INT_${s}_${c}`;

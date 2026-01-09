@@ -118,8 +118,16 @@ export async function createCompanyProfile(payload) {
             );
         }
         await conn.execute(
-            `INSERT INTO COMPANIES (ID, NAME, ADDRESS, DOMAINE) VALUES (:id, :name, :address, :domaine)`,
-            { id: id || null, name: name || null, address: address || null, domaine: domaine || null }
+            `INSERT INTO COMPANIES (ID, NAME, ADDRESS, DOMAINE, PHONE, WEBSITE, DESCRIPTION) VALUES (:id, :name, :address, :domaine, :phone, :website, :description)`,
+            {
+                id: id || null,
+                name: name || null,
+                address: address || null,
+                domaine: domaine || null,
+                phone: payload.phone || null,
+                website: payload.website || null,
+                description: payload.description || null
+            }
         );
         await conn.commit();
         await addSystemLog('SYSTEM', 'NEW_COMPANY', { id, email, name });
@@ -165,7 +173,7 @@ export async function getProfileById(id) {
             };
         } else if (user.userType === "company") {
             const res = await conn.execute(
-                `SELECT NAME, ADDRESS, DOMAINE, INTERVIEW_QUOTA FROM COMPANIES WHERE id = :id`,
+                `SELECT NAME, ADDRESS, DOMAINE, PHONE, WEBSITE, DESCRIPTION, INTERVIEW_QUOTA FROM COMPANIES WHERE id = :id`,
                 { id },
                 { outFormat: oracledb.OUT_FORMAT_OBJECT }
             );
@@ -182,6 +190,9 @@ export async function getProfileById(id) {
                 name: c.NAME,
                 address: c.ADDRESS,
                 domaine: c.DOMAINE,
+                phone: c.PHONE,
+                website: c.WEBSITE,
+                description: c.DESCRIPTION,
                 quota: { total: c.INTERVIEW_QUOTA, used: usage, remaining: c.INTERVIEW_QUOTA - usage }
             };
         }
@@ -279,7 +290,10 @@ export async function updateUserProfile(id, payload) {
         } else if (user.userType === 'company') {
             const fields = [];
             const params = { id };
-            const map = { name: 'NAME', address: 'ADDRESS', domaine: 'DOMAINE' };
+            const map = {
+                name: 'NAME', address: 'ADDRESS', domaine: 'DOMAINE',
+                phone: 'PHONE', website: 'WEBSITE', description: 'DESCRIPTION'
+            };
 
             for (const [key, col] of Object.entries(map)) {
                 if (payload[key] !== undefined) {

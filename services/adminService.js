@@ -70,7 +70,7 @@ export async function getAllCompaniesAdmin() {
 export async function getAllApplicationsAdmin() {
     return withConnection(async (conn) => {
         const res = await conn.execute(`
-      SELECT A.ID, J.TITLE, S.FULLNAME, U.PHOTO_URL, A.STATUS, A.CREATED_AT, C.NAME, C.ID as COMPANY_ID, I.DATE_TIME, S.CV_URL, S.DIPLOMA_URL, UC.PHOTO_URL as COMPANY_LOGO, U.EMAIL, S.DOMAINE, S.GRADE, S.DATE_OF_BIRTH
+      SELECT A.ID, J.TITLE, S.FULLNAME, U.PHOTO_URL, A.STATUS, A.CREATED_AT, C.NAME, C.ID as COMPANY_ID, I.DATE_TIME, S.CV_URL, S.DIPLOMA_URL, UC.PHOTO_URL as COMPANY_LOGO, U.EMAIL, S.DOMAINE, S.GRADE, S.DATE_OF_BIRTH, S.ID as STUDENT_ID
       FROM APPLICATIONS A 
       JOIN JOBS J ON A.JOB_ID = J.ID 
       JOIN STUDENTS S ON A.STUDENT_ID = S.ID 
@@ -85,6 +85,7 @@ export async function getAllApplicationsAdmin() {
             id: r.ID,
             jobTitle: r.TITLE,
             applicantName: r.FULLNAME,
+            studentId: r.STUDENT_ID,
             applicantPhoto: r.PHOTO_URL,
             status: r.STATUS,
             createdAt: r.CREATED_AT,
@@ -105,7 +106,7 @@ export async function getAllApplicationsAdmin() {
 export async function getAllInterviewsAdmin() {
     return withConnection(async (conn) => {
         const res = await conn.execute(`
-      SELECT I.ID, I.TITLE, C.NAME, S.FULLNAME, I.DATE_TIME, I.STATUS, I.MEET_LINK, U.PHOTO_URL, I.COMPANY_ID, I.ROOM, E.RATING, E.COMMENTS, S.DATE_OF_BIRTH
+      SELECT I.ID, I.TITLE, C.NAME, S.FULLNAME, I.DATE_TIME, I.STATUS, I.MEET_LINK, U.PHOTO_URL, I.COMPANY_ID, I.ROOM, E.RATING, E.COMMENTS, S.DATE_OF_BIRTH, S.ID as STUDENT_ID
       FROM INTERVIEWS I
       JOIN COMPANIES C ON I.COMPANY_ID = C.ID
       JOIN STUDENTS S ON I.STUDENT_ID = S.ID
@@ -119,6 +120,7 @@ export async function getAllInterviewsAdmin() {
             title: r.TITLE,
             companyName: r.NAME,
             studentName: r.FULLNAME,
+            studentId: r.STUDENT_ID,
             dateTime: r.DATE_TIME,
             status: r.STATUS,
             meetLink: r.MEET_LINK,
@@ -128,6 +130,27 @@ export async function getAllInterviewsAdmin() {
             score: r.RATING, // Map for frontend
             remarks: r.COMMENTS, // Map for frontend
             studentDateOfBirth: r.DATE_OF_BIRTH
+        }));
+    });
+}
+
+// New function: Get All Jobs for Admin
+export async function getAllJobsAdmin() {
+    return withConnection(async (conn) => {
+        const res = await conn.execute(
+            `SELECT J.ID, J.TITLE, J.COMPANY_ID, J.STATUS, C.NAME as COMPANY_NAME 
+             FROM JOBS J 
+             JOIN COMPANIES C ON J.COMPANY_ID = C.ID 
+             ORDER BY J.CREATED_AT DESC`,
+            {},
+            { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
+        return res.rows.map(r => ({
+            id: r.ID,
+            title: r.TITLE,
+            companyId: r.COMPANY_ID,
+            companyName: r.COMPANY_NAME,
+            status: r.STATUS
         }));
     });
 }
