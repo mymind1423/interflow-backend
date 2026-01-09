@@ -21,6 +21,7 @@ import {
 } from "../services/dbService.js";
 import { sendApprovalEmail } from "../utils/sendMail.js";
 import { NotFoundError } from "../utils/errors.js";
+import { getAllJobsAdmin } from "../services/adminService.js";
 
 export async function listPendingCompanies(req, res, next) {
   try {
