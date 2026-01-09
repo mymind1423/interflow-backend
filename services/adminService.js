@@ -138,7 +138,7 @@ export async function getAllInterviewsAdmin() {
 export async function getAllJobsAdmin() {
     return withConnection(async (conn) => {
         const res = await conn.execute(
-            `SELECT J.ID, J.TITLE, J.COMPANY_ID, J.STATUS, C.NAME as COMPANY_NAME 
+            `SELECT J.ID, J.TITLE, J.COMPANY_ID, J.IS_ACTIVE, C.NAME as COMPANY_NAME 
              FROM JOBS J 
              JOIN COMPANIES C ON J.COMPANY_ID = C.ID 
              ORDER BY J.CREATED_AT DESC`,
@@ -150,7 +150,7 @@ export async function getAllJobsAdmin() {
             title: r.TITLE,
             companyId: r.COMPANY_ID,
             companyName: r.COMPANY_NAME,
-            status: r.STATUS
+            status: r.IS_ACTIVE === 1 ? 'open' : 'closed'
         }));
     });
 }
