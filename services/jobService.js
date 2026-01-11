@@ -446,6 +446,7 @@ export async function getCompanyJobs(companyId) {
               FROM INTERVIEWS I 
               JOIN APPLICATIONS A ON I.APPLICATION_ID = A.ID 
               WHERE A.JOB_ID = J.ID AND I.STATUS IN ('ACCEPTED', 'COMPLETED')) as ACCEPTED_COUNT, 
+             (SELECT COUNT(*) FROM INVITATIONS WHERE JOB_ID = J.ID AND STATUS = 'PENDING') as PENDING_INVITATIONS_COUNT,
              J.IS_ACTIVE,
              (SELECT COUNT(*) FROM APPLICATIONS WHERE JOB_ID = J.ID) as APPLICATION_COUNT 
       FROM JOBS J WHERE COMPANY_ID = :companyId ORDER BY CREATED_AT DESC`,
@@ -464,6 +465,7 @@ export async function getCompanyJobs(companyId) {
             createdAt: r.CREATED_AT,
             interviewQuota: r.INTERVIEW_QUOTA,
             acceptedCount: r.ACCEPTED_COUNT,
+            pendingInvitationsCount: r.PENDING_INVITATIONS_COUNT,
             isActive: r.IS_ACTIVE,
             applicationCount: r.APPLICATION_COUNT
         }));
