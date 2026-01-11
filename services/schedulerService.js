@@ -1,66 +1,95 @@
+import oracledb from "oracledb";
+
 /**
  * Scheduler Service
  * Handles automated interview scheduling for Djibouti Campus (Balbala).
- * Constraints: Jan 11-15, 08:30 - 12:00, 30 min slots.
- * Rooms: Salle A1, Salle A2.
+ * Parameters: 08:00 - 12:00, 20 min slots.
+ * Rooms: Dynamic (Salle + Company Name).
  */
 
 const START_HOUR = 8;
-const START_MIN = 30;
+const START_MIN = 0;
 const END_HOUR = 12;
 const END_MIN = 0;
-const SLOT_DURATION_MS = 30 * 60 * 1000;
+const SLOT_DURATION_MS = 20 * 60 * 1000;
 
-// Jan 11 to Jan 15, 2025 (Assuming current/next year context, prompt says "11 au 15 Janvier")
-// We will assume 2025 based on Metadata or 2026? Metadata says 2025-12-23. So next Jan is Jan 2026.
-// Let's assume Jan 2026 to be safe, or just "Next Jan".
-// Actually, prompt doesn't specify year. I'll use 2026 since we are in Dec 2025.
+// Feb 15 to Feb 19, 2026 
 const YEAR = 2026;
-const TARGET_MONTH = 0; // January (0-indexed)
-const DAYS = [11, 12, 13, 14, 15];
+const TARGET_MONTH = 1; // February (0-indexed)
+const DAYS = [15, 16, 17, 18, 19];
 
-export async function findBestSlot(conn, studentId, companyId) {
+export async function findBestSlot(conn, studentId, companyId, source = 'APPLICATION') {
+    // 0. Date Range (Feb 15 - Feb 19, 2026)
+    const startRange = new Date(YEAR, TARGET_MONTH, 15, 0, 0, 0);
+    const endRange = new Date(YEAR, TARGET_MONTH, 19, 23, 59, 59);
+
     // 1. Fetch Existing Commitments
     // Company Interviews
     const companyInts = await conn.execute(
-        `SELECT DATE_TIME FROM INTERVIEWS WHERE COMPANY_ID = :id AND STATUS != 'CANCELLED'`,
-        { id: companyId }
+        `SELECT DATE_TIME FROM INTERVIEWS 
+         WHERE COMPANY_ID = :id AND STATUS != 'CANCELLED'
+         AND DATE_TIME >= :startRange AND DATE_TIME <= :endRange`,
+        { id: companyId, startRange, endRange },
+        { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
 
     // Student Interviews
     const studentInts = await conn.execute(
-        `SELECT DATE_TIME FROM INTERVIEWS WHERE STUDENT_ID = :id AND STATUS != 'CANCELLED'`,
-        { id: studentId }
+        `SELECT DATE_TIME FROM INTERVIEWS 
+         WHERE STUDENT_ID = :id AND STATUS != 'CANCELLED'
+         AND DATE_TIME >= :startRange AND DATE_TIME <= :endRange`,
+        { id: studentId, startRange, endRange },
+        { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
 
-    // Room Usage (Global)
-    // We need to know which room is taken.
+    // Global Interviews for Quota counting
     const allInts = await conn.execute(
-        `SELECT DATE_TIME, ROOM FROM INTERVIEWS WHERE STATUS != 'CANCELLED'`
+        `SELECT DATE_TIME, SOURCE FROM INTERVIEWS 
+         WHERE STATUS != 'CANCELLED' 
+         AND DATE_TIME >= :startRange AND DATE_TIME <= :endRange`,
+        { startRange, endRange },
+        { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
 
-    const companyBusy = new Set(companyInts.rows.map(r => new Date(r[0]).getTime()));
-    const studentBusy = new Set(studentInts.rows.map(r => new Date(r[0]).getTime()));
+    // Fetch Company Name for Room Name
+    const coRes = await conn.execute(`SELECT NAME FROM COMPANIES WHERE ID = :id`, { id: companyId }, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+    const companyName = coRes.rows[0]?.NAME || 'Entreprise';
 
-    const roomUsage = {}; // time -> Set(rooms)
+    const companyBusy = new Set(companyInts.rows.map(r => new Date(r.DATE_TIME || r[0]).getTime()));
+    const studentBusy = new Set(studentInts.rows.map(r => new Date(r.DATE_TIME || r[0]).getTime()));
+
+    const dailyCounts = {}; // dayString -> { total: number, apps: number }
+
     allInts.rows.forEach(r => {
-        const time = new Date(r[0]).getTime();
-        const room = r[1] || 'A1'; // Default to A1 if null
-        if (!roomUsage[time]) roomUsage[time] = new Set();
-        roomUsage[time].add(room);
+        const dateObj = new Date(r.DATE_TIME || r[0]);
+        const src = r.SOURCE || r[1]; // 'APPLICATION' or 'INVITATION'
+
+        // Daily Counts (Key: "Month-Day")
+        const dayKey = `${dateObj.getMonth()}-${dateObj.getDate()}`;
+        if (!dailyCounts[dayKey]) dailyCounts[dayKey] = { total: 0, apps: 0 };
+
+        dailyCounts[dayKey].total++;
+        if (src === 'APPLICATION') {
+            dailyCounts[dayKey].apps++;
+        }
     });
 
     // 2. Iterate Slots
     for (const day of DAYS) {
-        // Generate slots for this day
+        // Quota Check
+        const dayKey = `${TARGET_MONTH}-${day}`;
+        const counts = dailyCounts[dayKey] || { total: 0, apps: 0 };
+
+        // Hard Limit: 60 Total (Assuming max 60 total across all companies if needed, but here rooms are dynamic)
+        // User said: "chaque entrprise une salle", so global room conflict is less an issue than global day overload if any.
+        // Let's keep a high enough limit.
+        if (counts.total >= 500) continue; // High enough for many companies
+
+        // Simulation parameters: 12 slots per day per company.
         const baseDate = new Date(YEAR, TARGET_MONTH, day, START_HOUR, START_MIN, 0);
-        // 08:30
 
-        // We go until 12:00. Last slot starts at 11:30.
-        // Slots: 8:30, 9:00, 9:30, 10:00, 10:30, 11:00, 11:30
-        // Total 7 slots.
-
-        for (let i = 0; i < 7; i++) {
+        // 8:00 to 12:00 (12 slots of 20 mins)
+        for (let i = 0; i < 12; i++) {
             const slotTime = new Date(baseDate.getTime() + (i * SLOT_DURATION_MS));
             const timeMs = slotTime.getTime();
 
@@ -68,20 +97,13 @@ export async function findBestSlot(conn, studentId, companyId) {
             if (companyBusy.has(timeMs)) continue;
             if (studentBusy.has(timeMs)) continue;
 
-            // Room Check
-            const usedRooms = roomUsage[timeMs] || new Set();
-
-            let assignedRoom = null;
-            if (!usedRooms.has('A1')) assignedRoom = 'A1';
-            else if (!usedRooms.has('A2')) assignedRoom = 'A2';
-
-            if (assignedRoom) {
-                return {
-                    startTime: slotTime,
-                    roomName: assignedRoom, // 'A1' or 'A2'
-                    roomId: assignedRoom // Simple mapping
-                };
-            }
+            // Room logic: "Chaque entreprise une salle"
+            const assignedRoom = `Salle ${companyName}`;
+            return {
+                startTime: slotTime,
+                roomName: assignedRoom,
+                roomId: assignedRoom
+            };
         }
     }
 

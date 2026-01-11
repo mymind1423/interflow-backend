@@ -21,7 +21,14 @@ import {
 } from "../services/dbService.js";
 import { sendApprovalEmail } from "../utils/sendMail.js";
 import { NotFoundError } from "../utils/errors.js";
-import { getAllJobsAdmin } from "../services/adminService.js";
+import { getAllJobsAdmin, getAnalyticsReport } from "../services/adminService.js";
+
+export async function getAnalytics(req, res, next) {
+  try {
+    const report = await getAnalyticsReport();
+    res.json(report);
+  } catch (err) { next(err); }
+}
 
 export async function listPendingCompanies(req, res, next) {
   try {
@@ -77,20 +84,7 @@ import os from "os";
 export async function getStats(req, res, next) {
   try {
     const dbStats = await getAdminStats();
-
-    // Add real system metrics
-    const totalMem = os.totalmem();
-    const freeMem = os.freemem();
-    const usedMemPerc = Math.round(((totalMem - freeMem) / totalMem) * 100);
-
-    res.json({
-      ...dbStats,
-      system: {
-        memory: usedMemPerc,
-        uptime: Math.round(os.uptime() / 3600), // in hours
-        load: os.loadavg()[0].toFixed(2)
-      }
-    });
+    res.json(dbStats);
   } catch (err) { next(err); }
 }
 

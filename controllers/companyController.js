@@ -85,12 +85,12 @@ export async function getInterviews(req, res, next) {
 
 export async function saveEvaluation(req, res, next) {
     try {
-        const { studentId, rating, comment, score, remarks } = req.body;
+        const { studentId, rating, comment, score, remarks, isRetained } = req.body;
         // Support both naming conventions
         const finalRating = rating || score;
         const finalComment = comment || remarks;
 
-        const result = await saveCompanyEvaluation(req.user.uid, studentId, finalRating, finalComment);
+        const result = await saveCompanyEvaluation(req.user.uid, studentId, finalRating, finalComment, isRetained);
         res.json(result);
     } catch (err) {
         next(err);

@@ -1,0 +1,390 @@
+{
+  "settingsColumns": [
+    {
+      "COLUMN_NAME": "KEY",
+      "DATA_TYPE": "VARCHAR2"
+    },
+    {
+      "COLUMN_NAME": "VALUE",
+      "DATA_TYPE": "CLOB"
+    },
+    {
+      "COLUMN_NAME": "UPDATED_AT",
+      "DATA_TYPE": "TIMESTAMP(6)"
+    },
+    {
+      "COLUMN_NAME": "DESCRIPTION",
+      "DATA_TYPE": "VARCHAR2"
+    }
+  ],
+  "students": {
+    "total": 255,
+    "nullGradeDomaine": 0,
+    "sample": [
+      {
+        "FULLNAME": "Raymond Cousin",
+        "GRADE": "Licence",
+        "DOMAINE": "Génie Civil"
+      },
+      {
+        "FULLNAME": "Lorrain Marchand",
+        "GRADE": "Master",
+        "DOMAINE": "Génie Civil"
+      },
+      {
+        "FULLNAME": "Mauricette Renault",
+        "GRADE": "Licence",
+        "DOMAINE": "Gestion des Entreprises"
+      },
+      {
+        "FULLNAME": "Balthazar Fernandez",
+        "GRADE": "Licence",
+        "DOMAINE": "Banque & Finance"
+      },
+      {
+        "FULLNAME": "Annabelle Aubry",
+        "GRADE": "Licence",
+        "DOMAINE": "Gestion des Entreprises"
+      }
+    ]
+  },
+  "allJobs": [
+    {
+      "ID": "TEST_JOB_132",
+      "TITLE": "Consultant des solutions mondial",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_132"
+    },
+    {
+      "ID": "TEST_JOB_133",
+      "TITLE": "Directeur de l'intranet client",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_133"
+    },
+    {
+      "ID": "TEST_JOB_134",
+      "TITLE": "Directeur de la responsabilité humain",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_134"
+    },
+    {
+      "ID": "TEST_JOB_135",
+      "TITLE": "Developpeur de la création mondial",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_135"
+    },
+    {
+      "ID": "TEST_JOB_136",
+      "TITLE": "Architecte des interactions national",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_136"
+    },
+    {
+      "ID": "TEST_JOB_137",
+      "TITLE": "Superviseur des directives principal",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_137"
+    },
+    {
+      "ID": "TEST_JOB_138",
+      "TITLE": "Ingenieur de la sécurité direct",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_138"
+    },
+    {
+      "ID": "TEST_JOB_139",
+      "TITLE": "Executif des directives central",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_139"
+    },
+    {
+      "ID": "TEST_JOB_140",
+      "TITLE": "Ingenieur du web humain",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_140"
+    },
+    {
+      "ID": "TEST_JOB_141",
+      "TITLE": "Manager des interactions international",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_141"
+    },
+    {
+      "ID": "TEST_JOB_142",
+      "TITLE": "Stagiaire de l'intégration principal",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_142"
+    },
+    {
+      "ID": "TEST_JOB_143",
+      "TITLE": "Coordinateur des applications central",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_143"
+    },
+    {
+      "ID": "TEST_JOB_144",
+      "TITLE": "Designer de l'intranet client",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_144"
+    },
+    {
+      "ID": "TEST_JOB_145",
+      "TITLE": "Agent de division principal",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_145"
+    },
+    {
+      "ID": "TEST_JOB_146",
+      "TITLE": "Technicien des données régional",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_146"
+    },
+    {
+      "ID": "TEST_JOB_147",
+      "TITLE": "Technicien de la réponse national",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_147"
+    },
+    {
+      "ID": "TEST_JOB_148",
+      "TITLE": "Superviseur de la tactique international",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_148"
+    },
+    {
+      "ID": "TEST_JOB_149",
+      "TITLE": "Coordinateur du web client",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_149"
+    },
+    {
+      "ID": "e32ff152-05e0-4a4c-9b0e-454cc68bc116",
+      "TITLE": "Sécretaire Génerale",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "BDQkuXzE56QZaVGFOwNRq4vza7z1"
+    },
+    {
+      "ID": "TEST_JOB_128",
+      "TITLE": "Architecte de configuration national",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_128"
+    },
+    {
+      "ID": "TEST_JOB_129",
+      "TITLE": "Architecte des opérations client",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_129"
+    },
+    {
+      "ID": "TEST_JOB_130",
+      "TITLE": "Directeur de la réponse humain",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_130"
+    },
+    {
+      "ID": "TEST_JOB_131",
+      "TITLE": "Analyste de la responsabilité mondial",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_131"
+    },
+    {
+      "ID": "2751abb5-e82c-4370-8ec4-72260a5b9179",
+      "TITLE": "Technicien Maintenance",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "Cqtz4YKYlCNzOMgyRNKodpkusN52"
+    },
+    {
+      "ID": "ae0af69d-940c-45be-9510-53737bd865ee",
+      "TITLE": "Développeur Full Stack",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "esf0jXnVBjNOUzXM2Z77b6EyN6v1"
+    },
+    {
+      "ID": "TEST_JOB_105",
+      "TITLE": "Assistant des opérations futur",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_105"
+    },
+    {
+      "ID": "TEST_JOB_106",
+      "TITLE": "Developpeur de groupe central",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_106"
+    },
+    {
+      "ID": "TEST_JOB_107",
+      "TITLE": "Designer de paradigme principal",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_107"
+    },
+    {
+      "ID": "TEST_JOB_108",
+      "TITLE": "Producteur de la responsabilité principal",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_108"
+    },
+    {
+      "ID": "TEST_JOB_109",
+      "TITLE": "Analyste de paradigme principal",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_109"
+    },
+    {
+      "ID": "TEST_JOB_110",
+      "TITLE": "Developpeur des comptes principal",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_110"
+    },
+    {
+      "ID": "TEST_JOB_111",
+      "TITLE": "Assistant de l'intégration national",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_111"
+    },
+    {
+      "ID": "TEST_JOB_112",
+      "TITLE": "Executif de groupe international",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_112"
+    },
+    {
+      "ID": "TEST_JOB_113",
+      "TITLE": "Stagiaire de la création principal",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_113"
+    },
+    {
+      "ID": "TEST_JOB_114",
+      "TITLE": "Administrateur de configuration client",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_114"
+    },
+    {
+      "ID": "TEST_JOB_115",
+      "TITLE": "Technicien de l'utilisabilité international",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_115"
+    },
+    {
+      "ID": "TEST_JOB_116",
+      "TITLE": "Administrateur des solutions humain",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_116"
+    },
+    {
+      "ID": "TEST_JOB_117",
+      "TITLE": "Assistant des opérations interne",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_117"
+    },
+    {
+      "ID": "TEST_JOB_118",
+      "TITLE": "Analyste de la mobilité mondial",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_118"
+    },
+    {
+      "ID": "TEST_JOB_119",
+      "TITLE": "Specialiste de division futur",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_119"
+    },
+    {
+      "ID": "TEST_JOB_120",
+      "TITLE": "Developpeur de l'optimisation régional",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_120"
+    },
+    {
+      "ID": "TEST_JOB_121",
+      "TITLE": "Agent des interactions régional",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_121"
+    },
+    {
+      "ID": "TEST_JOB_100",
+      "TITLE": "Ingenieur de la sécurité interne",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_100"
+    },
+    {
+      "ID": "TEST_JOB_101",
+      "TITLE": "Architecte du web mondial",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_101"
+    },
+    {
+      "ID": "TEST_JOB_122",
+      "TITLE": "Stagiaire de la mobilité humain",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_122"
+    },
+    {
+      "ID": "TEST_JOB_123",
+      "TITLE": "Producteur des interactions client",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_123"
+    },
+    {
+      "ID": "TEST_JOB_124",
+      "TITLE": "Specialiste des données régional",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_124"
+    },
+    {
+      "ID": "TEST_JOB_125",
+      "TITLE": "Analyste de groupe client",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_125"
+    },
+    {
+      "ID": "TEST_JOB_126",
+      "TITLE": "Directeur de configuration direct",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_126"
+    },
+    {
+      "ID": "TEST_JOB_102",
+      "TITLE": "Manager de la responsabilité principal",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_102"
+    },
+    {
+      "ID": "TEST_JOB_103",
+      "TITLE": "Agent des facteurs national",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_103"
+    },
+    {
+      "ID": "TEST_JOB_104",
+      "TITLE": "Coordinateur des facteurs humain",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_104"
+    },
+    {
+      "ID": "TEST_JOB_127",
+      "TITLE": "Agent des métriques mondial",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "TEST_COMP_127"
+    },
+    {
+      "ID": "55384996-62b1-4eb8-bc0c-b8e67997c21d",
+      "TITLE": "Responsable Gestion Projet",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "VLlZQwOZREUgmEhpV33QfPuwg5s1"
+    },
+    {
+      "ID": "1e52469f-2d85-490a-a7b5-40beca0a4f68",
+      "TITLE": "Analyste des donnees",
+      "IS_ACTIVE": 1,
+      "COMPANY_ID": "bySeGcvO8oPaezbxtBGr8P0j3W33"
+    }
+  ],
+  "dmoneyJobs": [
+    {
+      "ID": "e32ff152-05e0-4a4c-9b0e-454cc68bc116",
+      "TITLE": "Sécretaire Génerale",
+      "IS_ACTIVE": 1
+    }
+  ]
+}

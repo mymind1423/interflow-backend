@@ -1,0 +1,29 @@
+{
+  "student": {
+    "ID": "SIM_STUD_33",
+    "FULLNAME": "Raymond Cousin",
+    "PHONE": "0616839124",
+    "ADDRESS": "2 Quai du Bac",
+    "DOMAINE": "Génie Civil",
+    "GRADE": "Licence",
+    "CV_URL": "https://example.com/cv/SIM_STUD_33.pdf",
+    "DIPLOMA_URL": "https://example.com/diploma/SIM_STUD_33.pdf",
+    "FACULTY": "IUT de Djibouti",
+    "TOKENS_REMAINING": 20,
+    "MAX_TOKENS": 20,
+    "TOKENS_TOTAL": 20,
+    "TOKENS_ENGAGED": 0,
+    "TOKENS_CONSUMED": 0,
+    "DATE_OF_BIRTH": "2000-01-25T00:43:32.000Z"
+  },
+  "user": {
+    "ID": "SIM_STUD_33",
+    "USER_TYPE": "student",
+    "EMAIL": "student_33@simulation.com",
+    "DISPLAY_NAME": "Raymond Cousin",
+    "PHOTO_URL": "https://i.pravatar.cc/150?u=SIM_STUD_33",
+    "CREATED_AT": "2026-01-11T15:52:36.820Z",
+    "UPDATED_AT": null,
+    "STATUS": "approved"
+  }
+}

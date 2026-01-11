@@ -15,13 +15,13 @@ import {
   listStudentInterviews,
   remindInterview,
   getLogs,
-  getSettings,
-  updateSetting,
   updateProfile,
   search,
   getLiveManagerData,
-  getJobs // Import new controller
+  getJobs,
+  getAnalytics
 } from "../controllers/adminController.js";
+import { getSettings, updateSettings } from "../controllers/settingsController.js";
 import { verifyAuth } from "../middleware/authMiddleware.js";
 import { requireAdmin } from "../middleware/requireAdmin.js";
 import { auditLogger } from "../middleware/auditMiddleware.js";
@@ -40,6 +40,9 @@ router.post("/companies/approve", idRule, validateRequest, approveCompany);
 router.post("/companies/reject", idRule, validateRequest, rejectCompany);
 
 router.get("/stats", getStats);
+router.get("/analytics", getAnalytics);
+router.get("/settings", getSettings);
+router.post("/settings", updateSettings);
 router.get("/students", getStudents);
 router.get("/companies", getCompanies);
 router.post("/users/delete", idRule, validateRequest, deleteEntity);
@@ -52,8 +55,8 @@ router.get("/students/:id/applications", listStudentApplications);
 router.get("/students/:id/interviews", listStudentInterviews);
 router.post("/interviews/:id/remind", remindInterview);
 
-router.get("/settings", getSettings);
-router.post("/settings/update", updateSetting);
+// router.get("/settings", getSettings); // Already defined above
+// router.post("/settings/update", updateSetting); // Legacy
 router.get("/logs", getLogs);
 router.post("/profile/update", updateProfile);
 router.get("/search", search);

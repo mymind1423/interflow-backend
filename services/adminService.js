@@ -2,18 +2,48 @@ import oracledb from "oracledb";
 import { withConnection, addSystemLog } from "./coreDb.js";
 import { deleteFileFromUrl } from "../utils/fileUtils.js";
 import { admin as firebaseAdmin } from "../firebase/firebaseAdmin.js";
+import os from "os";
 
 /**
  * ADMIN SERVICES
  */
 export async function getAdminStats() {
     return withConnection(async (conn) => {
+        const startPing = Date.now();
+        await conn.execute("SELECT 1 FROM DUAL");
+        const pingTime = Date.now() - startPing;
+
         const students = await conn.execute(`SELECT COUNT(*) as CNT FROM USERS WHERE USER_TYPE = 'student'`, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
         const companies = await conn.execute(`SELECT COUNT(*) as CNT FROM USERS WHERE USER_TYPE = 'company'`, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
         const pending = await conn.execute(`SELECT COUNT(*) as CNT FROM USERS WHERE USER_TYPE = 'company' AND STATUS = 'pending'`, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
         const active = await conn.execute(`SELECT COUNT(*) as CNT FROM USERS WHERE USER_TYPE = 'company' AND STATUS = 'approved'`, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
         const apps = await conn.execute(`SELECT COUNT(*) as CNT FROM APPLICATIONS`, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
         const interviews = await conn.execute(`SELECT COUNT(*) as CNT FROM INTERVIEWS`, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+        const retained = await conn.execute(`SELECT COUNT(*) as CNT FROM EVALUATIONS WHERE IS_RETAINED = 1`, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+
+        // Storage Usage (Approximate for the user schema)
+        const storage = await conn.execute(`SELECT SUM(BYTES) as BYTES FROM USER_SEGMENTS`, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+        const storageMB = storage.rows[0].BYTES ? (storage.rows[0].BYTES / 1024 / 1024).toFixed(2) : 0;
+
+        // Calculate Retention Rate
+        const completedInterviews = await conn.execute(`SELECT COUNT(*) as CNT FROM INTERVIEWS WHERE STATUS = 'COMPLETED'`, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+        const completedCount = completedInterviews.rows[0].CNT || 1; // Avoid division by zero
+        const retentionRate = ((retained.rows[0].CNT / completedCount) * 100).toFixed(1);
+
+        // System Metrics
+        const totalMem = os.totalmem();
+        const freeMem = os.freemem();
+        const usedMemPercent = ((totalMem - freeMem) / totalMem * 100).toFixed(1);
+        const uptimeHours = (os.uptime() / 3600).toFixed(1);
+        const loadAvg = os.loadavg()[0].toFixed(2);
+
+        const systemStats = {
+            ping: pingTime,
+            storage: storageMB,
+            memory: usedMemPercent,
+            uptime: uptimeHours,
+            load: loadAvg
+        };
 
         return {
             totalStudents: students.rows[0].CNT,
@@ -21,7 +51,55 @@ export async function getAdminStats() {
             pendingCompanies: pending.rows[0].CNT,
             activeCompanies: active.rows[0].CNT,
             totalApplications: apps.rows[0].CNT,
-            totalInterviews: interviews.rows[0].CNT
+            totalInterviews: interviews.rows[0].CNT,
+            totalRetained: retained.rows[0].CNT,
+            retentionRate: retentionRate,
+            system: systemStats
+        };
+    });
+}
+
+export async function getAnalyticsReport() {
+    return withConnection(async (conn) => {
+        // 1. Funnel Data
+        const totalStudentsRes = await conn.execute(`SELECT COUNT(*) as CNT FROM USERS WHERE USER_TYPE = 'student'`, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+        const totalStudents = totalStudentsRes.rows[0].CNT;
+
+        const interviewedStudentsRes = await conn.execute(`SELECT COUNT(DISTINCT STUDENT_ID) as CNT FROM INTERVIEWS`, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+        const interviewedStudents = interviewedStudentsRes.rows[0].CNT;
+
+        // Count unique students who have at least one retained evaluation
+        const retainedStudentsRes = await conn.execute(`
+            SELECT COUNT(DISTINCT A.STUDENT_ID) as CNT 
+            FROM EVALUATIONS E 
+            JOIN APPLICATIONS A ON E.APPLICATION_ID = A.ID
+            WHERE E.IS_RETAINED = 1
+        `, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+        const retainedStudents = retainedStudentsRes.rows[0].CNT;
+
+        // 2. Status Distribution
+        const statusDistRes = await conn.execute(`SELECT STATUS, COUNT(*) as CNT FROM INTERVIEWS GROUP BY STATUS`, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+
+        // 3. Monthly Trend (Registrations last 6 months)
+        const monthlyTrendRes = await conn.execute(`
+            SELECT 
+                TO_CHAR(CREATED_AT, 'YYYY-MM') as MONTH,
+                COUNT(*) as CNT
+            FROM USERS 
+            WHERE USER_TYPE = 'student'
+            AND CREATED_AT >= ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -5)
+            GROUP BY TO_CHAR(CREATED_AT, 'YYYY-MM')
+            ORDER BY MONTH ASC
+        `, {}, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+
+        return {
+            funnel: {
+                total: totalStudents,
+                interviewed: interviewedStudents,
+                retained: retainedStudents
+            },
+            statusDistribution: statusDistRes.rows.map(r => ({ name: r.STATUS, value: r.CNT })),
+            monthlyTrend: monthlyTrendRes.rows.map(r => ({ month: r.MONTH, count: r.CNT }))
         };
     });
 }
@@ -106,7 +184,7 @@ export async function getAllApplicationsAdmin() {
 export async function getAllInterviewsAdmin() {
     return withConnection(async (conn) => {
         const res = await conn.execute(`
-      SELECT I.ID, I.TITLE, C.NAME, S.FULLNAME, I.DATE_TIME, I.STATUS, I.MEET_LINK, U.PHOTO_URL, I.COMPANY_ID, I.ROOM, E.RATING, E.COMMENTS, S.DATE_OF_BIRTH, S.ID as STUDENT_ID
+      SELECT I.ID, I.TITLE, C.NAME, S.FULLNAME, I.DATE_TIME, I.STATUS, I.MEET_LINK, U.PHOTO_URL, I.COMPANY_ID, I.ROOM, E.RATING, E.COMMENTS, E.IS_RETAINED, S.DATE_OF_BIRTH, S.ID as STUDENT_ID, U.EMAIL, S.DOMAINE, S.GRADE, S.CV_URL, S.DIPLOMA_URL
       FROM INTERVIEWS I
       JOIN COMPANIES C ON I.COMPANY_ID = C.ID
       JOIN STUDENTS S ON I.STUDENT_ID = S.ID
@@ -129,7 +207,14 @@ export async function getAllInterviewsAdmin() {
             room: r.ROOM,
             score: r.RATING, // Map for frontend
             remarks: r.COMMENTS, // Map for frontend
-            studentDateOfBirth: r.DATE_OF_BIRTH
+            isRetained: r.IS_RETAINED === 1,
+            studentDateOfBirth: r.DATE_OF_BIRTH,
+            // Extra details for modal
+            email: r.EMAIL,
+            domaine: r.DOMAINE,
+            grade: r.GRADE,
+            cvUrl: r.CV_URL,
+            diplomaUrl: r.DIPLOMA_URL
         }));
     });
 }
@@ -158,7 +243,10 @@ export async function getAllJobsAdmin() {
 export async function getSystemLogs() {
     return withConnection(async (conn) => {
         const res = await conn.execute(
-            `SELECT ID, ADMIN_ID, ACTION, DETAILS, CREATED_AT FROM SYSTEM_LOGS ORDER BY CREATED_AT DESC FETCH NEXT 50 ROWS ONLY`,
+            `SELECT L.ID, L.ADMIN_ID, L.ACTION, L.DETAILS, L.CREATED_AT, U.DISPLAY_NAME, U.USER_TYPE 
+             FROM SYSTEM_LOGS L 
+             LEFT JOIN USERS U ON L.ADMIN_ID = U.ID 
+             ORDER BY L.CREATED_AT DESC FETCH NEXT 100 ROWS ONLY`,
             {},
             { outFormat: oracledb.OUT_FORMAT_OBJECT }
         );
@@ -169,7 +257,15 @@ export async function getSystemLogs() {
                 details = await details.getData();
             }
             try { details = JSON.parse(details); } catch (e) { }
-            logs.push({ id: r.ID, adminId: r.ADMIN_ID, action: r.ACTION, details: details, createdAt: r.CREATED_AT });
+            logs.push({
+                id: r.ID,
+                adminId: r.ADMIN_ID,
+                actorName: r.DISPLAY_NAME || 'Système',
+                actorType: r.USER_TYPE,
+                action: r.ACTION,
+                details: details,
+                createdAt: r.CREATED_AT
+            });
         }
         return logs;
     });

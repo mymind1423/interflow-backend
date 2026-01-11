@@ -1,5 +1,5 @@
 import express from "express";
-import { getStats, getCompanies, getRecentJobs, apply, myApplications, getCompanyJobs, toggleSave, getSaved, getInterviews, withdrawApplication, checkIn, getFeedback } from "../controllers/studentController.js";
+import { getStats, getCompanies, getRecentJobs, apply, myApplications, getCompanyJobs, toggleSave, getSaved, getInterviews, withdrawApplication, checkIn, getFeedback, getJobDetails } from "../controllers/studentController.js";
 import { getInvitations, acceptInvitation, rejectInvitation } from "../controllers/studentInvitationController.js";
 import { verifyAuth } from "../middleware/authMiddleware.js";
 
@@ -8,6 +8,7 @@ const router = express.Router();
 router.get("/stats", verifyAuth, getStats);
 router.get("/companies", verifyAuth, getCompanies);
 router.get("/jobs", verifyAuth, getRecentJobs);
+router.get("/jobs/:id", verifyAuth, getJobDetails);
 router.post("/apply", verifyAuth, apply);
 router.get("/applications", verifyAuth, myApplications);
 router.post("/applications/delete", verifyAuth, withdrawApplication);

@@ -11,7 +11,8 @@ import {
     getStudentInterviews,
     deleteApplication,
     studentCheckIn, // Import new service
-    getInterviewFeedback // Import new service
+    getInterviewFeedback, // Import new service
+    getJobById as fetchJobById
 } from "../services/dbService.js";
 
 // ... [existing imports] ...
@@ -139,6 +140,14 @@ export async function withdrawApplication(req, res, next) {
         const { id } = req.body;
         const result = await deleteApplication(id, req.user.uid);
         res.json(result);
+    } catch (err) { next(err); }
+}
+
+export async function getJobDetails(req, res, next) {
+    try {
+        const { id } = req.params;
+        const job = await fetchJobById(id, req.user.uid);
+        res.json(job);
     } catch (err) { next(err); }
 }
 

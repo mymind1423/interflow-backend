@@ -1,0 +1,68 @@
+{
+  "dmoneyId": "BDQkuXzE56QZaVGFOwNRq4vza7z1",
+  "talentCount": 205,
+  "talentSample": [
+    {
+      "ID": "SIM_STUD_5",
+      "NAME": "Abelin Gerard",
+      "DOMAINE": "Logistique & Transport",
+      "GRADE": "Licence"
+    },
+    {
+      "ID": "SIM_STUD_52",
+      "NAME": "Abraham Roche",
+      "DOMAINE": "Gestion des Entreprises",
+      "GRADE": "Licence"
+    },
+    {
+      "ID": "SIM_STUD_74",
+      "NAME": "Adalard Dumas",
+      "DOMAINE": "Logistique & Transport",
+      "GRADE": "Licence"
+    },
+    {
+      "ID": "SIM_STUD_119",
+      "NAME": "Adalbert Mercier",
+      "DOMAINE": "Gestion des Entreprises",
+      "GRADE": "Master"
+    },
+    {
+      "ID": "SIM_STUD_103",
+      "NAME": "Adegrine Bertrand",
+      "DOMAINE": "Logistique & Transport",
+      "GRADE": "Master"
+    },
+    {
+      "ID": "SIM_STUD_47",
+      "NAME": "Adolphe Chevalier",
+      "DOMAINE": "Banque & Finance",
+      "GRADE": "Licence"
+    },
+    {
+      "ID": "SIM_STUD_129",
+      "NAME": "Agnan Gautier",
+      "DOMAINE": "Logistique & Transport",
+      "GRADE": "Master"
+    },
+    {
+      "ID": "SIM_STUD_143",
+      "NAME": "Agnès Julien",
+      "DOMAINE": "Télécommunications",
+      "GRADE": "Licence"
+    },
+    {
+      "ID": "SIM_STUD_80",
+      "NAME": "Agrippine Blanc",
+      "DOMAINE": "Informatique",
+      "GRADE": "Master"
+    },
+    {
+      "ID": "SIM_STUD_150",
+      "NAME": "Agrippine Laurent",
+      "DOMAINE": "Génie Civil",
+      "GRADE": "Master"
+    }
+  ],
+  "dmoneyAppCount": 50,
+  "totalStudents": 255
+}

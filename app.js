@@ -11,6 +11,7 @@ import adminRoutes from "./routes/Admin.js";
 import notificationRoutes from "./routes/Notifications.js";
 import studentRoutes from "./routes/Student.js";
 import companyRoutes from "./routes/Company.js";
+import settingsRoutes from "./routes/settings.routes.js";
 import aiRoutes from "./routes/AI.js";
 import { verifyAuth } from "./middleware/authMiddleware.js";
 import { checkMaintenanceMode } from "./middleware/maintenanceMiddleware.js";
@@ -37,6 +38,7 @@ app.use("/api/verify", verifyRoutes);
 app.use("/api/notifications", verifyAuth, checkMaintenanceMode, notificationRoutes);
 app.use("/api/student", verifyAuth, checkMaintenanceMode, studentRoutes);
 app.use("/api/company", verifyAuth, checkMaintenanceMode, companyRoutes);
+app.use("/api/settings", settingsRoutes);
 app.use("/api/ai", verifyAuth, checkMaintenanceMode, aiRoutes);
 
 import { verifyTokenOnly } from "./middleware/verifyTokenOnly.js";
