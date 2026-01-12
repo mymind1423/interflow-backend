@@ -653,7 +653,7 @@ export async function getStudentInterviews(userId) {
     return withConnection(async (conn) => {
         const res = await conn.execute(`
         SELECT I.ID, I.COMPANY_ID, I.STUDENT_ID, I.APPLICATION_ID, I.TITLE, I.DATE_TIME, I.STATUS, I.ROOM, I.SOURCE,
-               C.NAME, U.PHOTO_URL, A.STATUS as APP_STATUS,
+               C.NAME, U.PHOTO_URL, U.EMAIL, A.STATUS as APP_STATUS,
                (SELECT IS_RETAINED FROM EVALUATIONS WHERE APPLICATION_ID = I.APPLICATION_ID FETCH NEXT 1 ROWS ONLY) as IS_RETAINED
         FROM INTERVIEWS I 
         JOIN COMPANIES C ON I.COMPANY_ID = C.ID 
@@ -675,6 +675,7 @@ export async function getStudentInterviews(userId) {
             room: r.ROOM,
             companyName: r.NAME,
             companyLogo: r.PHOTO_URL,
+            companyEmail: r.EMAIL,
             sourceStatus: r.APP_STATUS,
             checkedIn: r.STATUS === 'CHECKED_IN',
             isRetained: r.IS_RETAINED === 1,
